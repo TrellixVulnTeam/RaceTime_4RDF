@@ -15,9 +15,20 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from rest_framework.routers import DefaultRouter
+from rest_framework_nested import routers
+from race.views import RaceViewSet,RaceCategoryViewSet, ParticipantViewSet
+
+router = DefaultRouter()
+router.register(r'races', RaceViewSet)
+
+races_router = routers.NestedSimpleRouter(router, r'races', lookup='race')
+races_router.register(r'participants', ParticipantViewSet)
+races_router.register(r'categories', RaceCategoryViewSet)
 
 urlpatterns = [
+    url(r'^', include(router.urls)),
+    url(r'^', include(races_router.urls)),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^auth/', include('djoser.urls.authtoken')),
-    url(r'^races/', include('race.urls'))
 ]
