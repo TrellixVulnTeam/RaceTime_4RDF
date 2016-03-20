@@ -21,6 +21,7 @@ class Participant(models.Model):
      user = models.ForeignKey('authentication.CustomUser')
      race = models.ForeignKey(Race)
      category = models.ForeignKey(RaceCategory, blank=True, null=True)
+     age = models.PositiveSmallIntegerField(blank=True, null=True)
      place = models.PositiveSmallIntegerField(blank=True, null=True)
      finish_time = models.TimeField(blank=True, null=True)
      avg_speed = models.DecimalField(max_digits=4, decimal_places=2, blank=True, null=True)
@@ -32,6 +33,4 @@ class Participant(models.Model):
 
      def __str__(self):
          return self.user.get_full_name()
-
-
 

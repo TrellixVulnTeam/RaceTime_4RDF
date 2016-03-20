@@ -1,12 +1,10 @@
 from .models import Race, RaceCategory, Participant
 from .serializers import RaceSerializer, RaceCategorySerializer, ParticipantSerializer
-from django.core import serializers
-from rest_framework import generics, permissions, viewsets
-from rest_framework.decorators import detail_route
-from rest_framework.exceptions import APIException
 from django.core.exceptions import ObjectDoesNotExist
+from datetime import date
+from rest_framework import permissions, viewsets, status
 from rest_framework.response import Response
-
+from rest_framework.exceptions import APIException
 
 class RaceViewSet(viewsets.ModelViewSet):
     queryset = Race.objects.all()
@@ -45,7 +43,16 @@ class ParticipantViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         self.queryset = self.queryset.filter(user=kwargs['pk'], race=kwargs['race_pk'])
+        if not self.queryset.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
         return super(ParticipantViewSet, self).list(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        participant = self.queryset.filter(user=kwargs['pk'], race=kwargs['race_pk'])
+        if not participant.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        self.perform_destroy(participant)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_race(self, race_pk):
         try:
@@ -53,20 +60,25 @@ class ParticipantViewSet(viewsets.ModelViewSet):
         except ObjectDoesNotExist:
             raise APIException('This race does not exist')
 
-    def set_participant_category(self):
+    def set_participant_category(self, age):
         race_categories = RaceCategory.objects.filter(race=self.kwargs['race_pk'])
         for category in race_categories:
-            if category.min_age < self.request.user.age <= category.max_age:
+            if category.min_age < age <= category.max_age:
                 return category
         return None
+
+    def calculate_age(self, date_of_birth):
+        today = date.today()
+        return today.year - date_of_birth.year - ((today.month, today.day) < (date_of_birth.month, date_of_birth.day))
 
     def create_participant(self, serializer,  participants_ids):
         if self.request.user.id in participants_ids:
             raise APIException('You are already registered for this race')
         else:
             race = self.get_race(self.kwargs['race_pk'])
-            participant_category = self.set_participant_category()
-            serializer.save(user=self.request.user, race=race, category=participant_category)
+            age = self.calculate_age(self.request.user.date_of_birth)
+            participant_category = self.set_participant_category(age)
+            serializer.save(user=self.request.user, race=race, age=age, category=participant_category)
 
     def perform_create(self, serializer):
         race_pk = self.kwargs['race_pk']
