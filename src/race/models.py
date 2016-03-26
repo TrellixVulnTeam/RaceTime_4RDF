@@ -34,3 +34,8 @@ class Participant(models.Model):
      def __str__(self):
          return self.user.get_full_name()
 
+
+class RaceTiming(models.Model):
+    race = models.ForeignKey(Race)
+    time_started = models.DateTimeField(auto_now_add=True)
+    time_stopped = models.DateTimeField(blank=True, null=True)
