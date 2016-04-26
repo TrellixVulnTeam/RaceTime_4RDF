@@ -17,8 +17,8 @@ class RaceCategorySerializer(serializers.ModelSerializer):
 class ParticipantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Participant
-        exclude = ('date_registered', 'last_modified',)
-        read_only_fields = ('race', 'age', 'user', 'place', 'finish_time', 'avg_speed')
+        exclude = ('id', 'date_registered', 'last_modified',)
+        read_only_fields = ('race', 'age', 'user', 'place')
 
 
 class RaceTimingSerializer(serializers.ModelSerializer):

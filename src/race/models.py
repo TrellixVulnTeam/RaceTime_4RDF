@@ -25,7 +25,7 @@ class Participant(models.Model):
      race = models.ForeignKey(Race)
      category = models.ForeignKey(RaceCategory, blank=True, null=True)
      age = models.PositiveSmallIntegerField(blank=True, null=True)
-     place = models.PositiveSmallIntegerField(blank=True, null=True)
+     place = models.PositiveSmallIntegerField(default=0)
      finish_time = models.DurationField(blank=True, null=True)
      avg_speed = models.DecimalField(max_digits=4, decimal_places=2, blank=True, null=True)
      avg_pulse = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)

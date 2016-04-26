@@ -16,3 +16,4 @@ urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^', include(races_router.urls)),
 ]
+

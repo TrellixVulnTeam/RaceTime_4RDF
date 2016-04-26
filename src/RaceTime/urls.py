@@ -7,3 +7,4 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^auth/', include('djoser.urls.authtoken')),
 ]
+
